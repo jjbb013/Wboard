@@ -74,12 +74,17 @@ Wboard 是一个基于 FastAPI 构建的轻量级面板，旨在帮助您轻松�
     -   **端口配置**:
         -   Northflank 会自动检测 `Dockerfile` 中暴露的 `8000` 端口。为端口命名（例如 `http`）并确保 "Public" 开关是打开的，这样才能通过公网访问。
     -   **环境变量**:
-        -   这是最关键的一步。点击 "Environment variables" 添加以下变量：
-        -   `DATABASE_URL`: 点击 "Add from secret"，选择你之前创建的 MySQL Addon，然后选择 `MYSQL_URL`。Northflank 会自动为你生成正确的连接字符串。
-        -   `SECRET_KEY`: 点击 "Generate" 生成一个安全的随机字符串。
-        -   `ADMIN_USERNAME`: 设置你想要的初始管理员用户名。
-        -   `ADMIN_PASSWORD`: 设置一个安全的初始管理员密码。
-        -   `XRAY_API_BASE_URL`: 如果你的 Xray 也部署在 Northflank，这里可以填写 Xray 服务的内部地址。否则，填写可访问的公网地址。
+        -   这是最关键的一步。在 "Environment variables" 部分，找到 "Runtime variables" 并点击 "Add variable"。
+        -   **添加 `DATABASE_URL`**:
+            -   **Key**: `DATABASE_URL`
+            -   **Value**: 点击输入框右侧的图标（通常是一个锁或钥匙图标），选择 "Secret"。
+            -   在弹出的菜单中，选择你之前创建的 MySQL Addon，然后选择 `MYSQL_URL`。Northflank 会自动为你填充正确的连接字符串。
+        -   **添加其他变量**:
+            -   重复 "Add variable" 步骤，添加以下变量：
+            -   `SECRET_KEY`: **Key** 为 `SECRET_KEY`。在 **Value** 处，点击右侧图标，选择 "Generate" 生成一个安全的随机字符串。
+            -   `ADMIN_USERNAME`: **Key** 为 `ADMIN_USERNAME`，**Value** 处填写你想要的初始管理员用户名。
+            -   `ADMIN_PASSWORD`: **Key** 为 `ADMIN_PASSWORD`，**Value** 处填写一个安全的初始管理员密码。
+            -   `XRAY_API_BASE_URL`: **Key** 为 `XRAY_API_BASE_URL`，**Value** 处填写你的 Xray API 地址。
     -   **资源计划**:
         -   选择免费的 `nf-compute-free` 计划。
     -   **磁盘 (Volumes)**:
