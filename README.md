@@ -79,6 +79,8 @@ Wboard 是一个基于 FastAPI 构建的轻量级面板，旨在帮助您轻松�
             -   **Key**: `DATABASE_URL`
             -   **Value**: 点击输入框右侧的图标（通常是一个锁或钥匙图标），选择 "Secret"。
             -   在弹出的菜单中，选择你之前创建的 MySQL Addon，然后选择 `MYSQL_URL`。Northflank 会自动为你填充正确的连接字符串。
+            -   **如果找不到自动填充选项**：您可以手动拼接连接字符串。在 MySQL Addon 的 "Connection" 页面找到 `user`, `password`, `host`, `port`, `database` 等信息，然后按照以下格式手动填入 Value：
+                `mysql+pymysql://<user>:<password>@<host>:<port>/<database>`
         -   **添加其他变量**:
             -   重复 "Add variable" 步骤，添加以下变量：
             -   `SECRET_KEY`: **Key** 为 `SECRET_KEY`。在 **Value** 处，点击右侧图标，选择 "Generate" 生成一个安全的随机字符串。
