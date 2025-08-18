@@ -42,8 +42,6 @@ def startup_event():
 # 挂载静态文件目录
 app.mount("/static", StaticFiles(directory="app/static"), name="static")
 
-# 设置模板目录
-templates = Jinja2Templates(directory="app/templates")
 
 # 根路径已在 pages.py 中定义重定向，此处可移除或注释
 # @app.get("/")

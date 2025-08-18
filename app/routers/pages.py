@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Request, Depends
 from fastapi.responses import HTMLResponse, RedirectResponse
-from ..main import templates
+from ..dependencies import templates
 
 router = APIRouter(
     tags=["Pages"],
