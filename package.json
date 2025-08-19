@@ -1,0 +1,30 @@
+{
+  "name": "wboard",
+  "version": "1.0.0",
+  "description": "Wboard 是一个基于 FastAPI 构建的轻量级面板，旨在帮助您轻松地与朋友分享和管理代理服务。",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jjbb013/Wboard.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/jjbb013/Wboard/issues"
+  },
+  "homepage": "https://github.com/jjbb013/Wboard#readme",
+  "dependencies": {
+    "axios": "^1.11.0",
+    "bcryptjs": "^3.0.2",
+    "dotenv": "^17.2.1",
+    "express": "^5.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "mysql2": "^3.14.3",
+    "node-cron": "^4.2.1"
+  }
+}

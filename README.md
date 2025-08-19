@@ -1,97 +1,112 @@
-# Wboard - 轻量级代理服务分享与管理工具
+# Wboard (Node.js 版本)
 
-Wboard 是一个基于 FastAPI 构建的轻量级面板，旨在帮助您轻松地与朋友分享和管理代理服务。
+Wboard 是一个轻量级、非商业化的代理服务分享与管理工具，旨在帮助您轻松地与朋友分享和管理代理服务。此版本已从 Python/FastAPI 重构为 Node.js，并适配 Northflank 的 MySQL 服务。
 
-## 功能特性 (MVP)
+## 核心功能
 
--   **用户管理**: 添加/删除用户，设置流量和有效期。
--   **节点管理**: 集中管理您的所有代理节点。
--   **订阅服务**: 为每个用户生成专属的订阅链接。
--   **流量统计**: 自动从 Xray-core API 获取并更新用户流量。
--   **Web 界面**: 提供简洁的管理后台和用户仪表盘。
+*   **用户管理**: 添加/删除用户，分配流量/时长，查看用量，重置流量。
+*   **节点管理**: 添加/删除代理服务器节点信息。
+*   **订阅服务**: 根据用户 UUID 动态生成包含可用节点的配置文件。
+*   **流量统计**: 定时从代理后端（如 Xray）获取流量数据并更新到数据库。
+*   **自动任务**: 每月自动重置用户流量；自动禁用到期或流量超出的用户。
 
 ## 技术栈
 
--   **后端**: FastAPI
--   **数据库**: MySQL (适配 Northflank)
--   **ORM**: SQLAlchemy
--   **前端**: Jinja2 模板 + Bootstrap
+*   **后端**: Node.js (Express.js)
+*   **数据库**: MySQL (适配 Northflank MySQL 服务)
+*   **ORM/驱动**: `mysql2/promise`
+*   **认证**: JWT (jsonwebtoken, bcryptjs)
+*   **定时任务**: `node-cron`
+*   **HTTP 客户端**: `axios` (用于与 Xray API 交互)
+*   **视图引擎**: EJS
+*   **环境变量**: `dotenv`
+*   **JSON Schema 验证**: `ajv`
+*   **UUID 生成**: `uuid`
 
----
+## 部署到 Northflank
 
-## 本地开发与运行
+### 1. 准备 Northflank 服务
 
-1.  **克隆仓库**
-    ```bash
-    git clone <your-repo-url>
-    cd Wboard
-    ```
+1.  **创建 MySQL 数据库**: 在 Northflank 项目中，创建一个新的 MySQL 数据库服务。记下其连接字符串（通常会自动注入到服务中，或在数据库详情页查看）。
+2.  **创建 Node.js 服务**: 创建一个新的服务，选择 `Build and Deploy a Container`，并选择 `Node.js` 作为语言。
 
-2.  **创建虚拟环境并安装依赖**
-    ```bash
-    python -m venv venv
-    source venv/bin/activate  # Windows: venv\Scripts\activate
-    pip install -r requirements.txt
-    ```
+### 2. 配置环境变量
 
-3.  **配置环境变量**
-    复制 `.env.example` 为 `.env` 文件，并根据您的本地环境修改其中的配置，特别是 `DATABASE_URL`。
-    ```bash
-    cp .env.example .env
-    ```
+Northflank 会自动将 MySQL 数据库的连接信息注入到您的 Node.js 服务中，通常以 `MYSQL_CONNECTOR_URI` 或类似的名称。您需要在 `.env.example` 中配置 `DATABASE_URL`，并在 Northflank 服务中确保 `DATABASE_URL` 环境变量指向正确的 MySQL 连接字符串。
 
-4.  **运行应用**
-    ```bash
-    uvicorn app.main:app --reload
-    ```
-    应用将在 `http://127.0.0.1:8000` 上运行。
+**重要**: 在生产环境中，请务必修改 `SECRET_KEY` 为一个强随机字符串。
 
----
+### 3. Dockerfile
 
-## 在 Northflank 上部署
+项目根目录已提供 `Dockerfile`，Northflank 会自动使用它来构建您的应用。
 
-按照以下步骤，您可以轻松地将 Wboard 部署到 Northflank 的免费容器服务中。
+### 4. 部署
 
-1.  **准备代码仓库**
-    将本项目代码上传到您的 GitHub 或 GitLab 仓库。
+1.  将您的代码推送到 Git 仓库（例如 GitHub）。
+2.  在 Northflank 服务配置中，连接到您的 Git 仓库。
+3.  配置构建设置，确保使用项目根目录的 `Dockerfile`。
+4.  部署服务。
 
-2.  **在 Northflank 创建项目**
-    登录 Northflank，创建一个新项目。
+## 本地开发
 
-3.  **创建 MySQL 数据库 Addon**
-    -   在项目中，选择 "Add new" -> "Addon"。
-    -   选择 "MySQL"，选择一个区域，并选择免费的 `nf-mysql-free-8.0` 计划。
-    -   创建后，进入 Addon 详情页，在 "Connection" 标签页找到数据库的 `Host`, `Port`, `User`, `Password` 和 `Database name`。这些信息将用于下一步的环境变量配置。
+### 1. 环境准备
 
-4.  **创建服务 (Deployment Service)**
-    -   回到项目，选择 "Add new" -> "Service"。
-    -   选择 "Deployment service"。
-    -   **仓库设置**:
-        -   连接您的 GitHub/GitLab 账号，并选择 Wboard 项目的仓库。
-    -   **构建选项**:
-        -   选择 "Dockerfile"。Northflank 会自动检测到项目根目录下的 `Dockerfile`。
-        -   "Build path" 留空即可。
-    -   **端口配置**:
-        -   Northflank 会自动检测 `Dockerfile` 中暴露的 `8000` 端口。为端口命名（例如 `http`）并确保 "Public" 开关是打开的，这样才能通过公网访问。
-    -   **环境变量**:
-        -   这是最关键的一步。在 "Environment variables" 部分，找到 "Runtime variables" 并点击 "Add variable"。
-        -   **添加 `DATABASE_URL`**:
-            -   **Key**: `DATABASE_URL`
-            -   **Value**: 点击输入框右侧的图标（通常是一个锁或钥匙图标），选择 "Secret"。
-            -   在弹出的菜单中，选择你之前创建的 MySQL Addon，然后选择 `MYSQL_URL`。Northflank 会自动为你填充正确的连接字符串。
-            -   **如果找不到自动填充选项**：您可以手动拼接连接字符串。在 MySQL Addon 的 "Connection" 页面找到 `user`, `password`, `host`, `port`, `database` 等信息，然后按照以下格式手动填入 Value：
-                `mysql+pymysql://<user>:<password>@<host>:<port>/<database>`
-        -   **添加其他变量**:
-            -   重复 "Add variable" 步骤，添加以下变量：
-            -   `SECRET_KEY`: **Key** 为 `SECRET_KEY`。在 **Value** 处，点击右侧图标，选择 "Generate" 生成一个安全的随机字符串。
-            -   `ADMIN_USERNAME`: **Key** 为 `ADMIN_USERNAME`，**Value** 处填写你想要的初始管理员用户名。
-            -   `ADMIN_PASSWORD`: **Key** 为 `ADMIN_PASSWORD`，**Value** 处填写一个安全的初始管理员密码。
-            -   `XRAY_API_BASE_URL`: **Key** 为 `XRAY_API_BASE_URL`，**Value** 处填写你的 Xray API 地址。
-    -   **资源计划**:
-        -   选择免费的 `nf-compute-free` 计划。
-    -   **磁盘 (Volumes)**:
-        -   在 "Advanced" 选项中，可以挂载一个免费的 6GB 磁盘，但这对于 Wboard 不是必需的，因为我们使用数据库来持久化存储。
+*   安装 Node.js (推荐 LTS 版本，如 18 或更高)。
+*   安装 MySQL 数据库 (例如 Docker Desktop 运行 MySQL 容器)。
 
-5.  **创建并部署**
-    -   点击 "Create service"。Northflank 会开始从你的仓库拉取代码、构建 Docker 镜像并部署服务。
-    -   等待部署成功后，你就可以通过 Northflank 提供的公开 URL 访问你的 Wboard 面板了。
+### 2. 克隆项目
+
+```bash
+git clone https://github.com/jjbb013/Wboard.git
+cd Wboard
+```
+
+### 3. 安装依赖
+
+```bash
+npm install
+```
+
+### 4. 配置环境变量
+
+复制 `.env.example` 为 `.env`，并根据您的本地 MySQL 配置修改 `DATABASE_URL`。
+
+```bash
+cp .env.example .env
+```
+
+编辑 `.env` 文件：
+
+```
+PORT=8000
+DATABASE_URL="mysql://root:password@localhost:3306/wboard_db?sslmode=REQUIRED" # 根据你的本地MySQL配置修改
+SECRET_KEY="your-development-secret-key"
+XRAY_API_URL="http://localhost:8080/stats" # 如果需要与Xray交互，请配置
+```
+
+### 5. 运行应用
+
+```bash
+node src/app.js
+```
+
+应用将在 `http://localhost:8000` 运行。
+
+### 6. 数据库初始化
+
+首次运行应用时，`src/app.js` 会自动连接数据库并创建 `users` 和 `nodes` 表（如果不存在）。
+
+### 7. Xray API 交互 (待完善)
+
+请注意，与 Xray API 的交互（添加/删除用户，获取流量统计）在 `src/utils.js` 中目前是占位符实现，因为 Xray 的 API 通常是 gRPC 协议。在实际部署中，您需要：
+
+1.  确保您的 Xray 服务开启了 API 功能。
+2.  根据 Xray 的 gRPC 协议，使用 Node.js 的 gRPC 客户端库（如 `@grpc/grpc-js`）来实现 `addXrayUser`, `removeXrayUser`, `getXrayTrafficStats` 等函数。
+
+## API 文档 (待完善)
+
+目前没有自动生成的 API 文档。请参考 `src/routes/auth.js`, `src/routes/users.js`, `src/routes/nodes.js` 中的路由定义。
+
+## 贡献
+
+欢迎贡献！如果您有任何改进建议或发现 Bug，请提交 Issue 或 Pull Request。
