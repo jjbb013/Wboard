@@ -15,7 +15,7 @@ class Settings:
     if not all([DB_USER, DB_PASSWORD, DB_HOST, DB_PORT, DB_NAME]):
         raise ValueError("数据库连接所需的一个或多个环境变量未设置 (DB_USER, DB_PASSWORD, DB_HOST, DB_PORT, DB_NAME)")
 
-    DATABASE_URL: str = f"mysql+pymysql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}?charset=utf8mb4&ssl=true"
+    DATABASE_URL: str = f"mysql+mysqldb://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}?charset=utf8mb4"
     
     # JWT Token 配置
     SECRET_KEY: str = os.getenv("SECRET_KEY", "a_very_secret_key")
