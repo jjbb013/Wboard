@@ -11,21 +11,26 @@ def parse_northflank_uri(uri: str) -> str:
     示例输出: mysql+pymysql://user:pw@host:port/db
     """
     if not uri or "server=" not in uri:
-        return "mysql+pymysql://user:password@host/db" # 返回一个默认值或错误处理
+        raise ValueError("无效或空的 MYSQL_CONNECTOR_URI，请检查 Northflank 环境变量配置。")
 
     parts = {k: v for k, v in (item.split('=', 1) for item in uri.split(';'))}
     
-    host_port = parts.get("server", ":")
+    host_port = parts.get("server")
     user = parts.get("uid")
     password = parts.get("password")
     db = parts.get("database")
+
+    if not all([host_port, user, password, db]):
+        raise ValueError("MYSQL_CONNECTOR_URI 格式不完整，缺少关键部分。")
 
     return f"mysql+pymysql://{user}:{password}@{host_port}/{db}"
 
 class Settings:
     # 数据库配置
     raw_db_uri = os.getenv("MYSQL_CONNECTOR_URI")
-    DATABASE_URL: str = parse_northflank_uri(raw_db_uri) if raw_db_uri else "mysql+pymysql://user:password@host/db"
+    if not raw_db_uri:
+        raise ValueError("环境变量 MYSQL_CONNECTOR_URI 未设置，请在 Northflank 中链接数据库。")
+    DATABASE_URL: str = parse_northflank_uri(raw_db_uri)
     
     # JWT Token 配置
     SECRET_KEY: str = os.getenv("SECRET_KEY", "a_very_secret_key")
