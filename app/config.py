@@ -6,7 +6,7 @@ load_dotenv()
 
 class Settings:
     # 数据库配置
-    DATABASE_URL: str = os.getenv("DATABASE_URL", "mysql+pymysql://user:password@host/db")
+    DATABASE_URL: str = os.getenv("MYSQL_CONNECTOR_URI", "mysql+pymysql://user:password@host/db")
     
     # JWT Token 配置
     SECRET_KEY: str = os.getenv("SECRET_KEY", "a_very_secret_key")
